@@ -23,7 +23,7 @@ class monitor(object):
         try:
             with open(sitesFile) and open(emailFile): pass # check if given files can be opened
         except Exception as e:
-            print "Please specify a valid site file and email file :" + str(e)
+            print ("Please specify a valid site file and email file :" + str(e))
             self.writeToLog("Please specify a valid site file and email file :" + str(e))
             sys.exit()
         else:
@@ -37,12 +37,12 @@ class monitor(object):
         try:
             f = open(self.logFile, 'a')
         except Exception as e:
-            print 'Unable to open log file: ' + str(e)
+            print ('Unable to open log file: ' + str(e))
         try:
             f.write(str(datetime.datetime.now())[:-7] + " | " + logMsg + "\n")
             f.close()
         except Exception as e:
-            print 'Unable to write to log file: ' + str(e)
+            print ('Unable to write to log file: ' + str(e))
 
     def getUrls(self):
         """
@@ -57,7 +57,7 @@ class monitor(object):
                     urlList.append(line.strip())
             f.close()
         except Exception as e:
-            print 'Error on opening the file used by the getUrls function: ' + str(e)
+            print ('Error on opening the file used by the getUrls function: ' + str(e))
             self.writeToLog('Could not open the file with site urls. Exiting script: ' +str(e))
             self.sendEmail('Could not open the file with site urls. Exiting script: ' +str(e))
             sys.exit()
@@ -117,18 +117,18 @@ class monitor(object):
         except Exception as e:
             self.writeToLog('email not send: ' + str(e))
             print('email not send')
-            print e
+            print (e)
 
     def checkStatus(self, urls):
         Gstatus = self.getStatus('http://www.google.com') #let's see if we ourselves are connected by checking the mighty G.
         if Gstatus != 200:
-            print "Google is down ...\nyeah right, probably our monitor lost internet connection.\nSkipping this check."
+            print ("Google is down ...\nyeah right, probably our monitor lost internet connection.\nSkipping this check.")
             self.writeToLog("Google is down ... yeah right, probably our monitor lost internet connection. Skipping this check.")
-            print 'done'
+            print ('done')
             return
         # loop through all sites
         for url in urls:
-            print url
+            print (url)
             # get the status of the site
             status = self.getStatus(url)
             # if not 200 and statusMap not down
@@ -137,11 +137,11 @@ class monitor(object):
                 # send email(down)
                 message = url[7:] + " is down!\nSite status is " + str(status) + "\n" + str(datetime.datetime.now())[:-7]
                 subject = url[7:] + " is down!"
-                print message
-                print 'sending email...'
+                print (message)
+                print ('sending email...')
                 self.sendEmail(message, subject)
                 # set status in statusMap as down
-                print 'changing site status to down'
+                print ('changing site status to down')
                 self.statusMap[url] = 'down'
             # elif 200 and statusMap is down
             elif status == 200 and self.statusMap.get(url) == 'down':
@@ -149,19 +149,18 @@ class monitor(object):
                 # send email (up again)
                 message = url[7:] + " is up again!\n" + str(datetime.datetime.now())[:-7]
                 subject = url[7:] + " is up again!"
-                print message
-                print 'sending email...'
+                print (message)
+                print ('sending email...')
                 self.sendEmail(message, subject)
                 # set status in statusMap as up
-                print 'changing site status to up'
+                print ('changing site status to up')
                 self.statusMap[url] = 'up'
-            print 'done'
+            print ('done')
 
 def getConfig(fileIn):
     """
     read in a config file
     gets variables - value pairs
-
     returns a list of [variable, value]
     """
     confList = []
@@ -191,7 +190,7 @@ def getMonitors(fileIn):
     monObjs = []
     for i in range(len(monList)):
         if monList[i][0] == "MON":
-            print "creating monitor: " + str(monList[i][1])
+            print ("creating monitor: ") + str(monList[i][1])
             monObjs.append(monitor(monList[i+1][1],monList[i+2][1], 'status.txt'))
     #return monList
     return monObjs
@@ -204,7 +203,7 @@ def mainloop():
     monitors = getMonitors('config.txt')
     while True:
         print str(datetime.datetime.now())[:-7]
-        print 'checking...'
+        print ('checking...')
         for i in range(len(monitors)):
             monitors[i].checkStatus(monitors[i].getUrls())
         time.sleep(int(getConfig('config.txt')[5]))
